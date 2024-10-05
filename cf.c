@@ -1,46 +1,84 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-int strings_min_len(char* s1, char* s2) {
+#include "cf.h"
+
+#define PRINT_DEBUG(msg, format) printf("%s: %" format "\n", __func__, msg);
+
+int strings_min_len(const char* s1, const char* s2) {
     int s1_len = strlen(s1);
     int s2_len = strlen(s2);
 
     return s1_len < s2_len ? s1_len : s2_len;
 }
 
-void strings_to_upper(char* str, char** uppercase_str) {
-
+void string_to_upper(const char* str, char* uppercase_str) {
+    int len = strlen(str);
+    for(int i = 0; i < len; i++) {
+        uppercase_str[i] = toupper(str[i]);
+    }
 }
 
-void strings_intersect_chars(char* s1, char* s2, char** intersection) {
+char* string_last_n(const char* s, size_t n) {
+    size_t length = strlen(s);
+
+    return (char*)(length < n ? s : s + length - n);
+}
+
+void strings_intersect_chars(const char* s1, const char* s2, int max, char* intersection) {
     int intersection_index = 0;
-    
+
     int i = 0;
     char c;
     do {
         c = s1[i];
         if(strchr(s2, c) != NULL) {
-            *intersection[intersection_index] = c;
+            intersection[intersection_index] = c;
             intersection_index++;
         }
 
         i++;
-    } while(c != '\0');
+
+        printf("s1: %s\n", s1);
+        printf("s2: %s\n", s2);
+        printf("c: %c\n", c);
+        printf("intersection: %s\n", intersection);
+        puts("");
+    } while(c != '\0' && intersection_index < max);
 }
 
-void cf_surname(char* surname, char** output) {
-    
+void cf_surname(const char* surname, char* output) {
+    strings_intersect_chars(surname, CF_CONSONANTS, CF_SURNAME_LEN, output);
+
+    int len = strlen(output);
+    int missing = 0;
+
+    if(len < CF_SURNAME_LEN) {
+        missing = CF_SURNAME_LEN - len;
+        printf("len: %d missing: %d\n", len, missing);
+        strings_intersect_chars(surname, CF_VOWELS, missing, output + len);
+    }
+
+    len = strlen(output);
+
+    if(len < CF_SURNAME_LEN) {
+        missing = CF_SURNAME_LEN - len;
+        for(int i = len; i < len + missing; i++) {
+            output[i] = 'X';
+        }
+    }
 }
 
-void cf_name(char* name, char** output){}
+void cf_name(const char* name, char* output) { }
 
-void cf_birth_year(char* year, char** output){}
+void cf_birth_year(const char* year, char* output) { output = string_last_n(year, 2); }
 
-void cf_birth_month(int month, char* ouput){}
+void cf_birth_month(int month, char* ouput) { }
 
-void cf_birth_day_and_sex(int day, int* output){}
+int cf_birth_day_and_sex(int day, char sex) { return sex == 'm' ? day : day + 40; }
 
-void cf_birth_place(char *brithplace, char *birthplace_province, char** output){}
+void cf_birth_place(const char* birth_place, const char* birth_place_province, char* output) { }
 
-void cf_control_letter(char* incomplete_cf, char *output){}
+void cf_control_letter(const char* incomplete_cf, char* output) { }

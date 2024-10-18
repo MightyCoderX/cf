@@ -71,7 +71,24 @@ void cf_surname(const char* surname, char* output) {
     }
 }
 
-void cf_name(const char* name, char* output) { }
+void cf_name(const char* name, char* output) {
+    strings_intersect_chars(name, CF_CONSONANTS, 4, output);
+
+    int len = strlen(output);
+    int missing = 0;
+
+    if(len == 3)
+        return;
+
+    if(len == 4) {
+        sprintf(output, "%c%c%c", output[0], output[1], output[3]);
+        return;
+    }
+
+    missing = CF_NAME_LEN - len;
+
+    for(int i = 0; i < ; i++) { }
+}
 
 void cf_birth_year(const char* year, char* output) { output = string_last_n(year, 2); }
 

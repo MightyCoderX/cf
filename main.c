@@ -33,12 +33,12 @@ int main() {
     char sex = '\0';
     input("Sex (m/f): ", "\n%c", &sex);
 
-    // char* birth_place;
-    // input("Birth Place: ", "%ms", &birth_place);
-    //
-    // char* birth_place_province;
-    // input("Birth Province: ", "%ms", &birth_place_province);
-    //
+    char* birth_place;
+    input("Birth Place: ", "%ms", &birth_place);
+
+    char* birth_place_province;
+    input("Birth Province: ", "%ms", &birth_place_province);
+
     // puts("");
     // printf("surname: %s\nname: %s\nbirth date: %s-%02d-%d\nsex: %c\nbirth_place: %s (%s)\n",
     //     surname, name, birth_year, birth_month, birth_day, sex, birth_place, birth_place_province);
@@ -50,5 +50,6 @@ int main() {
     cf_birth_year(birth_year, cf);
     cf_birth_month(birth_month, cf);
     cf_birth_day_and_sex(birth_day, sex, cf);
+    cf_birth_place(birth_place, birth_place_province, cf);
     printf("CF: '%s'\n", cf);
 }

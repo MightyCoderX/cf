@@ -73,7 +73,7 @@ void cf_surname(const char* surname, char* output) {
 
 void cf_name(const char* name, char* output) {
     int len = strlen(output);
-    strings_intersect_chars(name, CF_CONSONANTS, 4, output+len);
+    strings_intersect_chars(name, CF_CONSONANTS, 4, output + len);
 
     int missing = 0;
 
@@ -81,13 +81,13 @@ void cf_name(const char* name, char* output) {
         return;
 
     if(len == 4) {
-        sprintf(output+len, "%c%c%c", output[0], output[1], output[3]);
+        sprintf(output + len, "%c%c%c", output[0], output[1], output[3]);
         return;
     }
 
     missing = CF_NAME_LEN - len;
 
-    for(int i = len; i < len+missing; i++) {
+    for(int i = len; i < len + missing; i++) {
         output[i] = 'X';
     }
 }
@@ -95,8 +95,8 @@ void cf_name(const char* name, char* output) {
 void cf_birth_year(const char* year, char* output) {
     int len = strlen(output);
     char* year_2_digits = string_last_n(year, 2);
-    for(int i = len; i < len + 2; i++){
-        output[i] = year_2_digits[i-len];
+    for(int i = len; i < len + 2; i++) {
+        output[i] = year_2_digits[i - len];
     }
 }
 
@@ -105,16 +105,27 @@ void cf_birth_month(int month, char* output) {
         return;
     }
 
-    output[strlen(output)] = "ABCDEHLMPRST"[month-1];
+    output[strlen(output)] = "ABCDEHLMPRST"[month - 1];
 }
 
 void cf_birth_day_and_sex(int day, char sex, char* output) {
     int birth_day = sex == 'm' ? day : day + 40;
-    sprintf(output+strlen(output), "%d", birth_day);
+    sprintf(output + strlen(output), "%d", birth_day);
 }
 
 void cf_birth_place(const char* birth_place, const char* birth_place_province, char* output) {
+    FILE* f = fopen("./codici_catastali_comuni_clean.csv", "r");
 
+    char c;
+
+    //TODO use my implementation of dynamic string to parse file
+
+    while((c = fgetc(f)) != EOF) {
+        if(c == '\n') { }
+        printf("%c", c);
+    }
+
+    fclose(f);
 }
 
 void cf_control_letter(const char* incomplete_cf, char* output) { }

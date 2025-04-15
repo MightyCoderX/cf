@@ -7,9 +7,8 @@ And it transforms each line like this:
 """
 
 with open("./codici_catastali_comuni.csv") as f:
-    with open("./codici_catastali_comuni_clean.txt", "w") as out:
+    with open("./codici_catastali_comuni_clean.csv", "w") as out:
         while line := f.readline():
             code_and_city, p1, p2 = line.rsplit(" ", 2)
             code, city = code_and_city.split(" ", 1)
             out.write(f"{code};{city};{p2}")
-

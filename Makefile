@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -pedantic -std=c23
 
-SRC_FILES = main.c cf.c
+SRC_FILES = main.c cf.c dynamic_string/dynamic_string.c
 
 
 main: ${SRC_FILES}

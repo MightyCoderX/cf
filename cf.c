@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "cf.h"
+#include "dynamic_string/dynamic_string.h"
 
 #define PRINT_DEBUG(msg, format) printf("%s: %" format "\n", __func__, msg);
 
@@ -95,9 +96,7 @@ void cf_name(const char* name, char* output) {
 void cf_birth_year(const char* year, char* output) {
     int len = strlen(output);
     char* year_2_digits = string_last_n(year, 2);
-    for(int i = len; i < len + 2; i++) {
-        output[i] = year_2_digits[i - len];
-    }
+    sprintf(output, "%s", year_2_digits);
 }
 
 void cf_birth_month(int month, char* output) {
@@ -116,14 +115,47 @@ void cf_birth_day_and_sex(int day, char sex, char* output) {
 void cf_birth_place(const char* birth_place, const char* birth_place_province, char* output) {
     FILE* f = fopen("./codici_catastali_comuni_clean.csv", "r");
 
+    // A001;ABANO TERME;PD
     char c;
+    int field_num = 0;
+    int line_number = 0;
+    int column_number = 0;
 
-    //TODO use my implementation of dynamic string to parse file
+    String buf = string_init("");
+    String municipality_code = string_init("");
+    String municipality_name = string_init("");
 
     while((c = fgetc(f)) != EOF) {
-        if(c == '\n') { }
-        printf("%c", c);
+        if(c == ';') {
+            field_num++;
+            printf("%s\n", buf.value);
+            if(field_num == 0) {
+                string_set(&municipality_code, buf.value);
+            } else if(field_num == 1) {
+                string_set(&municipality_name, buf.value);
+            } else if(field_num == 2) {
+                char* upper_birth_place = malloc(strlen(birth_place) + 1);
+                string_to_upper(birth_place, upper_birth_place);
+                if(strstr(municipality_name.value, upper_birth_place)) {
+                    sprintf(output, "%s", municipality_code.value);
+                    break;
+                }
+            }
+            string_clear(&buf);
+        } else if(c == '\n') {
+            line_number++;
+            column_number = 0;
+            string_clear(&buf);
+        } else {
+            string_append(&buf, c);
+        }
+
+        column_number++;
     }
+
+    string_free(buf);
+    string_free(municipality_code);
+    string_free(municipality_name);
 
     fclose(f);
 }

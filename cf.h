@@ -1,3 +1,5 @@
+#include "./dynamic_string/dynamic_string.h"
+
 #ifndef CF
 #define CF
 
@@ -12,7 +14,7 @@ int strings_min_len(const char* s1, const char* s2);
 void string_to_upper(const char* str, char* uppercase_str);
 void strings_intersect_chars(const char* s1, const char* s2, int max, char* intersection);
 
-void cf_surname(const char* surname, char* output);
+String cf_surname(const char* surname);
 void cf_name(const char* name, char* output);
 void cf_birth_year(const char* year, char* output);
 void cf_birth_month(int month, char* output);

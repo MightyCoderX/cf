@@ -4,9 +4,6 @@
 #include <string.h>
 
 #include "cf.h"
-#include "dynamic_string/dynamic_string.h"
-
-#define PRINT_DEBUG(msg, format) printf("%s: %" format "\n", __func__, msg);
 
 int strings_min_len(const char* s1, const char* s2) {
     int s1_len = strlen(s1);
@@ -42,32 +39,30 @@ void strings_intersect_chars(const char* s1, const char* s2, int max, char* inte
 
         i++;
 
-        printf("s1: %s\n", s1);
-        printf("s2: %s\n", s2);
-        printf("c: %c\n", c);
-        printf("intersection: %s\n", intersection);
-        puts("");
+        // printf("s1: %s\n", s1);
+        // printf("s2: %s\n", s2);
+        // printf("c: %c\n", c);
+        // printf("intersection: %s\n", intersection);
+        // puts("");
     } while(c != '\0' && intersection_index < max);
 }
 
-void cf_surname(const char* surname, char* output) {
-    strings_intersect_chars(surname, CF_CONSONANTS, CF_SURNAME_LEN, output);
+String cf_surname(const char* surname) {
+    String cf_sur = string_init("");
+    strings_intersect_chars(surname, CF_CONSONANTS, CF_SURNAME_LEN, cf_sur.value);
 
-    int len = strlen(output);
     int missing = 0;
 
-    if(len < CF_SURNAME_LEN) {
-        missing = CF_SURNAME_LEN - len;
-        printf("len: %d missing: %d\n", len, missing);
-        strings_intersect_chars(surname, CF_VOWELS, missing, output + len);
+    if(cf_sur.len < CF_SURNAME_LEN) {
+        missing = CF_SURNAME_LEN - cf_sur.len;
+        // printf("len: %d missing: %d\n", len, missing);
+        strings_intersect_chars(surname, CF_VOWELS, missing, cf_sur.value);
     }
 
-    len = strlen(output);
-
-    if(len < CF_SURNAME_LEN) {
-        missing = CF_SURNAME_LEN - len;
-        for(int i = len; i < len + missing; i++) {
-            output[i] = 'X';
+    if(cf_sur.len < CF_SURNAME_LEN) {
+        missing = CF_SURNAME_LEN - cf_sur.len;
+        for(int i = 0; i < missing; i++) {
+            string_append(&cf_sur, 'X');
         }
     }
 }
@@ -82,7 +77,7 @@ void cf_name(const char* name, char* output) {
         return;
 
     if(len == 4) {
-        sprintf(output + len, "%c%c%c", output[0], output[1], output[3]);
+        sprintf(output, "%s%c%c%c", output, output[0], output[1], output[3]);
         return;
     }
 
@@ -96,7 +91,7 @@ void cf_name(const char* name, char* output) {
 void cf_birth_year(const char* year, char* output) {
     int len = strlen(output);
     char* year_2_digits = string_last_n(year, 2);
-    sprintf(output, "%s", year_2_digits);
+    sprintf(output, "%s%s", output, year_2_digits);
 }
 
 void cf_birth_month(int month, char* output) {
@@ -127,22 +122,27 @@ void cf_birth_place(const char* birth_place, const char* birth_place_province, c
 
     while((c = fgetc(f)) != EOF) {
         if(c == ';') {
-            field_num++;
-            printf("%s\n", buf.value);
+            // printf("%s\n", buf.value);
             if(field_num == 0) {
                 string_set(&municipality_code, buf.value);
+                printf("code: %s\n", municipality_code.value);
             } else if(field_num == 1) {
                 string_set(&municipality_name, buf.value);
-            } else if(field_num == 2) {
+                printf("name: %s\n", municipality_name.value);
                 char* upper_birth_place = malloc(strlen(birth_place) + 1);
                 string_to_upper(birth_place, upper_birth_place);
+                printf("haystack: %s, needle: %s\n", municipality_name.value, upper_birth_place);
                 if(strstr(municipality_name.value, upper_birth_place)) {
-                    sprintf(output, "%s", municipality_code.value);
+                    printf("found municipality: %s %s\n", municipality_name.value,
+                        municipality_code.value);
+                    sprintf(output, "%s%s", output, municipality_code.value);
                     break;
                 }
             }
+            field_num++;
             string_clear(&buf);
         } else if(c == '\n') {
+            field_num = 0;
             line_number++;
             column_number = 0;
             string_clear(&buf);
@@ -153,9 +153,9 @@ void cf_birth_place(const char* birth_place, const char* birth_place_province, c
         column_number++;
     }
 
-    string_free(buf);
-    string_free(municipality_code);
-    string_free(municipality_name);
+    string_free(&buf);
+    string_free(&municipality_code);
+    string_free(&municipality_name);
 
     fclose(f);
 }

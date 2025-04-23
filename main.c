@@ -39,7 +39,7 @@ int main() {
     char* birth_place_province;
     input("Birth Province: ", "%ms", &birth_place_province);
 
-    // puts("");
+    puts("");
     // printf("surname: %s\nname: %s\nbirth date: %s-%02d-%d\nsex: %c\nbirth_place: %s (%s)\n",
     //     surname, name, birth_year, birth_month, birth_day, sex, birth_place, birth_place_province);
 

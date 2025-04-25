@@ -50,7 +50,7 @@ int main() {
     // printf("surname: %s\nname: %s\nbirth date: %s-%02d-%d\nsex: %c\nbirth_place: %s (%s)\n",
     //     surname, name, birth_year, birth_month, birth_day, sex, birth_place, birth_place_province);
 
-    String cf = string_init(16);
+    String cf = string_new_with_cap(16);
 
     cf_surname(surname, &cf);
     cf_name(name, &cf);

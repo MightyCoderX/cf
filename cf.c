@@ -6,14 +6,14 @@
 #include "cf.h"
 
 void cf_surname(const char* surname, String* p_cf) {
-    String cf_sur = string_intersect(surname, CF_CONSONANTS, 3);
+    String cf_sur = string_from_cstr_intersection(surname, CF_CONSONANTS, 3);
 
     int missing = 0;
 
     if(cf_sur.length < CF_SURNAME_LEN) {
         missing = CF_SURNAME_LEN - cf_sur.length;
         // printf("len: %d missing: %d\n", len, missing);
-        String sur_vowels = string_intersect(surname, CF_VOWELS, missing);
+        String sur_vowels = string_from_cstr_intersection(surname, CF_VOWELS, missing);
         string_concat(&cf_sur, sur_vowels.value);
         string_free(&sur_vowels);
     }
@@ -29,7 +29,7 @@ void cf_surname(const char* surname, String* p_cf) {
 }
 
 void cf_name(const char* name, String* p_cf) {
-    String cf_n = string_intersect(name, CF_CONSONANTS, 4);
+    String cf_n = string_from_cstr_intersection(name, CF_CONSONANTS, 4);
 
     if(cf_n.length == 3) {
         string_concat(p_cf, cf_n.value);
@@ -45,7 +45,7 @@ void cf_name(const char* name, String* p_cf) {
     size_t missing = CF_NAME_LEN - cf_n.length;
 
     if(missing > 0) {
-        String vowels = string_intersect(name, CF_VOWELS, missing);
+        String vowels = string_from_cstr_intersection(name, CF_VOWELS, missing);
         string_concat(&cf_n, vowels.value);
     }
 
@@ -74,7 +74,7 @@ void cf_birth_month(int month, String* p_cf) {
 }
 
 void cf_birth_day_and_sex(int day, char sex, String* p_cf) {
-    String cf_bday_sex = string_init(2);
+    String cf_bday_sex = string_new_with_cap(2);
 
     int birth_day = sex == 'm' ? day : day + 40;
     sprintf(cf_bday_sex.value, "%d", birth_day);
@@ -83,7 +83,7 @@ void cf_birth_day_and_sex(int day, char sex, String* p_cf) {
 }
 
 void cf_birth_place(const char* birth_place, const char* birth_place_province, String* p_cf) {
-    String cf_bplace = string_init(4);
+    String cf_bplace = string_new_with_cap(4);
     FILE* f = fopen("./codici_catastali_comuni_clean.csv", "r");
 
     // A001;ABANO TERME;PD

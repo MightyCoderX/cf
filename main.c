@@ -1,11 +1,18 @@
+#include <ctype.h>
 #include <stdio.h>
-#include <stdlib.h>
+#include <string.h>
 
 #include "./cf.h"
 
 #define input(prompt, input_format, ...)                                                           \
     printf("%s", prompt);                                                                          \
     scanf(input_format, __VA_ARGS__);
+
+void string_to_upper(char* str) {
+    for(size_t i = 0; i < strlen(str); i++) {
+        str[i] = toupper(str[i]);
+    }
+}
 
 int main() {
     /*char *name;*/
@@ -15,11 +22,11 @@ int main() {
 
     char* surname;
     input("Surname: ", "%ms", &surname);
-    string_to_upper(surname, surname);
+    string_to_upper(surname);
 
     char* name;
     input("Name: ", "%ms", &name);
-    string_to_upper(name, name);
+    string_to_upper(name);
 
     char* birth_year;
     input("Birth Year: ", "%ms", &birth_year);
@@ -43,13 +50,14 @@ int main() {
     // printf("surname: %s\nname: %s\nbirth date: %s-%02d-%d\nsex: %c\nbirth_place: %s (%s)\n",
     //     surname, name, birth_year, birth_month, birth_day, sex, birth_place, birth_place_province);
 
-    char* cf = malloc(CF_LEN + 1);
+    String cf = string_init(16);
 
-    cf_surname(surname, cf);
-    cf_name(name, cf);
-    cf_birth_year(birth_year, cf);
-    cf_birth_month(birth_month, cf);
-    cf_birth_day_and_sex(birth_day, sex, cf);
-    cf_birth_place(birth_place, birth_place_province, cf);
-    printf("CF: '%s'\n", cf);
+    cf_surname(surname, &cf);
+    cf_name(name, &cf);
+    cf_birth_year(birth_year, &cf);
+    cf_birth_month(birth_month, &cf);
+    cf_birth_day_and_sex(birth_day, sex, &cf);
+    cf_birth_place(birth_place, birth_place_province, &cf);
+    cf_control_char(&cf);
+    printf("CF: '%s'\n", cf.value);
 }

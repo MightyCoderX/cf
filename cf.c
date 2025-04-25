@@ -5,109 +5,85 @@
 
 #include "cf.h"
 
-int strings_min_len(const char* s1, const char* s2) {
-    int s1_len = strlen(s1);
-    int s2_len = strlen(s2);
-
-    return s1_len < s2_len ? s1_len : s2_len;
-}
-
-void string_to_upper(const char* str, char* uppercase_str) {
-    int len = strlen(str);
-    for(int i = 0; i < len; i++) {
-        uppercase_str[i] = toupper(str[i]);
-    }
-}
-
-char* string_last_n(const char* s, size_t n) {
-    size_t length = strlen(s);
-
-    return (char*)(length < n ? s : s + length - n);
-}
-
-void strings_intersect_chars(const char* s1, const char* s2, int max, char* intersection) {
-    int intersection_index = 0;
-
-    int i = 0;
-    char c;
-    do {
-        c = s1[i];
-        if(strchr(s2, c) != NULL) {
-            intersection[intersection_index] = c;
-            intersection_index++;
-        }
-
-        i++;
-
-        // printf("s1: %s\n", s1);
-        // printf("s2: %s\n", s2);
-        // printf("c: %c\n", c);
-        // printf("intersection: %s\n", intersection);
-        // puts("");
-    } while(c != '\0' && intersection_index < max);
-}
-
-String cf_surname(const char* surname) {
-    String cf_sur = string_init("");
-    strings_intersect_chars(surname, CF_CONSONANTS, CF_SURNAME_LEN, cf_sur.value);
+void cf_surname(const char* surname, String* p_cf) {
+    String cf_sur = string_intersect(surname, CF_CONSONANTS, 3);
 
     int missing = 0;
 
-    if(cf_sur.len < CF_SURNAME_LEN) {
-        missing = CF_SURNAME_LEN - cf_sur.len;
+    if(cf_sur.length < CF_SURNAME_LEN) {
+        missing = CF_SURNAME_LEN - cf_sur.length;
         // printf("len: %d missing: %d\n", len, missing);
-        strings_intersect_chars(surname, CF_VOWELS, missing, cf_sur.value);
+        String sur_vowels = string_intersect(surname, CF_VOWELS, missing);
+        string_concat(&cf_sur, sur_vowels.value);
+        string_free(&sur_vowels);
     }
 
-    if(cf_sur.len < CF_SURNAME_LEN) {
-        missing = CF_SURNAME_LEN - cf_sur.len;
+    if(cf_sur.length < CF_SURNAME_LEN) {
+        missing = CF_SURNAME_LEN - cf_sur.length;
         for(int i = 0; i < missing; i++) {
             string_append(&cf_sur, 'X');
         }
     }
+
+    string_concat(p_cf, cf_sur.value);
 }
 
-void cf_name(const char* name, char* output) {
-    int len = strlen(output);
-    strings_intersect_chars(name, CF_CONSONANTS, 4, output + len);
+void cf_name(const char* name, String* p_cf) {
+    String cf_n = string_intersect(name, CF_CONSONANTS, 4);
 
-    int missing = 0;
-
-    if(len == 3)
-        return;
-
-    if(len == 4) {
-        sprintf(output, "%s%c%c%c", output, output[0], output[1], output[3]);
+    if(cf_n.length == 3) {
+        string_concat(p_cf, cf_n.value);
         return;
     }
 
-    missing = CF_NAME_LEN - len;
-
-    for(int i = len; i < len + missing; i++) {
-        output[i] = 'X';
+    if(cf_n.length == 4) {
+        sprintf(cf_n.value, "%c%c%c", cf_n.value[0], cf_n.value[2], cf_n.value[3]);
+        string_concat(p_cf, cf_n.value);
+        return;
     }
+
+    size_t missing = CF_NAME_LEN - cf_n.length;
+
+    if(missing > 0) {
+        String vowels = string_intersect(name, CF_VOWELS, missing);
+        string_concat(&cf_n, vowels.value);
+    }
+
+    missing = CF_NAME_LEN - cf_n.length;
+
+    for(int i = cf_n.length; i < CF_NAME_LEN; i++) {
+        string_append(&cf_n, 'X');
+    }
+
+    string_concat(p_cf, cf_n.value);
 }
 
-void cf_birth_year(const char* year, char* output) {
-    int len = strlen(output);
-    char* year_2_digits = string_last_n(year, 2);
-    sprintf(output, "%s%s", output, year_2_digits);
+void cf_birth_year(const char* year, String* p_cf) {
+    string_concat(p_cf, string_from_cstr_sub(year, -2, -1).value);
 }
 
-void cf_birth_month(int month, char* output) {
+void cf_birth_month(int month, String* p_cf) {
+    char m;
     if(month > 12 && month < 1) {
-        return;
+        m = '\0';
+    } else {
+        m = "ABCDEHLMPRST"[month - 1];
     }
 
-    output[strlen(output)] = "ABCDEHLMPRST"[month - 1];
+    string_append(p_cf, m);
 }
 
-void cf_birth_day_and_sex(int day, char sex, char* output) {
+void cf_birth_day_and_sex(int day, char sex, String* p_cf) {
+    String cf_bday_sex = string_init(2);
+
     int birth_day = sex == 'm' ? day : day + 40;
-    sprintf(output + strlen(output), "%d", birth_day);
+    sprintf(cf_bday_sex.value, "%d", birth_day);
+
+    string_concat(p_cf, cf_bday_sex.value);
 }
 
-void cf_birth_place(const char* birth_place, const char* birth_place_province, char* output) {
+void cf_birth_place(const char* birth_place, const char* birth_place_province, String* p_cf) {
+    String cf_bplace = string_init(4);
     FILE* f = fopen("./codici_catastali_comuni_clean.csv", "r");
 
     // A001;ABANO TERME;PD
@@ -116,26 +92,27 @@ void cf_birth_place(const char* birth_place, const char* birth_place_province, c
     int line_number = 0;
     int column_number = 0;
 
-    String buf = string_init("");
-    String municipality_code = string_init("");
-    String municipality_name = string_init("");
+    String buf = string_from_cstr("");
+    String municipality_code = string_from_cstr("");
+    String municipality_name = string_from_cstr("");
 
     while((c = fgetc(f)) != EOF) {
         if(c == ';') {
             // printf("%s\n", buf.value);
             if(field_num == 0) {
                 string_set(&municipality_code, buf.value);
-                printf("code: %s\n", municipality_code.value);
+                // printf("code: %s\n", municipality_code.value);
             } else if(field_num == 1) {
                 string_set(&municipality_name, buf.value);
-                printf("name: %s\n", municipality_name.value);
-                char* upper_birth_place = malloc(strlen(birth_place) + 1);
-                string_to_upper(birth_place, upper_birth_place);
-                printf("haystack: %s, needle: %s\n", municipality_name.value, upper_birth_place);
-                if(strstr(municipality_name.value, upper_birth_place)) {
+                // printf("name: %s\n", municipality_name.value);
+                String upper_birth_place = string_from_cstr(birth_place);
+                string_upper(&upper_birth_place);
+                // printf("haystack: %s, needle: %s\n", municipality_name.value, upper_birth_place.value);
+                if(strstr(municipality_name.value, upper_birth_place.value)) {
+                    string_free(&upper_birth_place);
                     printf("found municipality: %s %s\n", municipality_name.value,
                         municipality_code.value);
-                    sprintf(output, "%s%s", output, municipality_code.value);
+                    string_set(&cf_bplace, municipality_code.value);
                     break;
                 }
             }
@@ -158,6 +135,37 @@ void cf_birth_place(const char* birth_place, const char* birth_place_province, c
     string_free(&municipality_name);
 
     fclose(f);
+
+    string_concat(p_cf, cf_bplace.value);
 }
 
-void cf_control_letter(const char* incomplete_cf, char* output) { }
+void cf_control_char(String* p_incomplete_cf) {
+    int odd[] = { 1, 0, 5, 7, 9, 13, 15, 17, 19, 21, 2, 4, 18, 20, 11, 3, 6, 8, 12, 14, 16, 10, 22,
+        25, 24, 23 };
+
+    int sum = 0;
+    for(size_t i = 0; i < p_incomplete_cf->length; i++) {
+        char c = p_incomplete_cf->value[i];
+        int index;
+        if(isalpha(c)) {
+            index = c - 'A';
+        } else if(isalnum(c) && !isalpha(c)) {
+            index = c - '0';
+        }
+
+        int val;
+        if((i + 1) % 2 == 0) {
+            val = index;
+        } else {
+            val = odd[index];
+        }
+
+        printf("c: %c, i: %lu, val: %d\n", c, i, val);
+        sum += val;
+    }
+
+    printf("sum: %d\n", sum);
+    char control = 'A' + (sum % 26);
+
+    string_append(p_incomplete_cf, control);
+}

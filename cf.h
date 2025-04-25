@@ -3,6 +3,7 @@
 #ifndef CF
 #define CF
 
+#define CF_ALPHABET "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 #define CF_CONSONANTS "BCDFGHJKLMNPQRSTVWXYZ"
 #define CF_VOWELS "AEIOU"
 
@@ -10,16 +11,12 @@
 #define CF_NAME_LEN 3
 #define CF_LEN 16
 
-int strings_min_len(const char* s1, const char* s2);
-void string_to_upper(const char* str, char* uppercase_str);
-void strings_intersect_chars(const char* s1, const char* s2, int max, char* intersection);
-
-String cf_surname(const char* surname);
-void cf_name(const char* name, char* output);
-void cf_birth_year(const char* year, char* output);
-void cf_birth_month(int month, char* output);
-void cf_birth_day_and_sex(int day, char sex, char* output);
-void cf_birth_place(const char* birth_place, const char* birth_place_province, char* output);
-void cf_control_letter(const char* incomplete_cf, char* output);
+void cf_surname(const char* surname, String* p_cf);
+void cf_name(const char* name, String* p_cf);
+void cf_birth_year(const char* year, String* p_cf);
+void cf_birth_month(int month, String* p_cf);
+void cf_birth_day_and_sex(int day, char sex, String* p_cf);
+void cf_birth_place(const char* birth_place, const char* birth_place_province, String* p_cf);
+void cf_control_char(String* p_incomplete_cf);
 
 #endif

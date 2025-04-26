@@ -26,6 +26,7 @@ void cf_surname(const char* surname, String* p_cf) {
     }
 
     string_concat(p_cf, cf_sur.value);
+    string_free(&cf_sur);
 }
 
 void cf_name(const char* name, String* p_cf) {
@@ -33,12 +34,14 @@ void cf_name(const char* name, String* p_cf) {
 
     if(cf_n.length == 3) {
         string_concat(p_cf, cf_n.value);
+        string_free(&cf_n);
         return;
     }
 
     if(cf_n.length == 4) {
         sprintf(cf_n.value, "%c%c%c", cf_n.value[0], cf_n.value[2], cf_n.value[3]);
         string_concat(p_cf, cf_n.value);
+        string_free(&cf_n);
         return;
     }
 
@@ -56,10 +59,13 @@ void cf_name(const char* name, String* p_cf) {
     }
 
     string_concat(p_cf, cf_n.value);
+    string_free(&cf_n);
 }
 
 void cf_birth_year(const char* year, String* p_cf) {
-    string_concat(p_cf, string_from_cstr_sub(year, -2, -1).value);
+    String last2digits = string_from_cstr_sub(year, -2, -1);
+    string_concat(p_cf, last2digits.value);
+    string_free(&last2digits);
 }
 
 void cf_birth_month(int month, String* p_cf) {
@@ -80,6 +86,7 @@ void cf_birth_day_and_sex(int day, char sex, String* p_cf) {
     sprintf(cf_bday_sex.value, "%d", birth_day);
 
     string_concat(p_cf, cf_bday_sex.value);
+    string_free(&cf_bday_sex);
 }
 
 void cf_birth_place(const char* birth_place, const char* birth_place_province, String* p_cf) {
@@ -137,6 +144,7 @@ void cf_birth_place(const char* birth_place, const char* birth_place_province, S
     fclose(f);
 
     string_concat(p_cf, cf_bplace.value);
+    string_free(&cf_bplace);
 }
 
 void cf_control_char(String* p_incomplete_cf) {

@@ -1,4 +1,4 @@
 set debuginfod enabled on
 layout src
-start
+start < ./test_input.txt
 

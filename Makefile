@@ -10,6 +10,6 @@ main: ${SRC_FILES}
 run: main
 	./main
 
-debug:
+debug: main
 	gdb ./main
 

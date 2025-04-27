@@ -105,20 +105,14 @@ void cf_birth_place(const char* birth_place, const char* birth_place_province, S
 
     while((c = fgetc(f)) != EOF) {
         if(c == ';') {
-            // printf("%s\n", buf.value);
             if(field_num == 0) {
                 string_set(&municipality_code, buf.value);
-                // printf("code: %s\n", municipality_code.value);
             } else if(field_num == 1) {
                 string_set(&municipality_name, buf.value);
-                // printf("name: %s\n", municipality_name.value);
                 String upper_birth_place = string_from_cstr(birth_place);
                 string_upper(&upper_birth_place);
-                // printf("haystack: %s, needle: %s\n", municipality_name.value, upper_birth_place.value);
                 if(strstr(municipality_name.value, upper_birth_place.value)) {
                     string_free(&upper_birth_place);
-                    printf("found municipality: %s %s\n", municipality_name.value,
-                        municipality_code.value);
                     string_set(&cf_bplace, municipality_code.value);
                     break;
                 }
@@ -168,11 +162,9 @@ void cf_control_char(String* p_incomplete_cf) {
             val = odd[index];
         }
 
-        printf("c: %c, i: %lu, val: %d\n", c, i, val);
         sum += val;
     }
 
-    printf("sum: %d\n", sum);
     char control = 'A' + (sum % 26);
 
     string_append(p_incomplete_cf, control);

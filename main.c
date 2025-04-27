@@ -15,11 +15,6 @@ void string_to_upper(char* str) {
 }
 
 int main() {
-    /*char *name;*/
-    /*cf_name("Mattia", &name);*/
-    /**/
-    /*printf("Name: %s\n", name);*/
-
     char* surname;
     input("Surname: ", "%ms", &surname);
     string_to_upper(surname);
